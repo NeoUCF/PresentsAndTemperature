@@ -128,27 +128,27 @@ public class OptimisticList {
 	}
 }
 
-class Node {
-	int tag;
-	int key;
-	Node next;
-	ReentrantLock rel = new ReentrantLock(true); // true makes it fair
+// class Node {
+// 	int tag;
+// 	int key;
+// 	Node next;
+// 	ReentrantLock rel = new ReentrantLock(true); // true makes it fair
 
-	Node() {
-		this.tag = this.key = -2;
-		this.next = new Node(-1);
-		System.out.println("yoo");
-	}
+// 	Node() {
+// 		this.tag = this.key = -2;
+// 		this.next = new Node(-1);
+// 		System.out.println("yoo");
+// 	}
 
-	Node(int tag) {
-		this.tag = this.key = tag;
-	}
+// 	Node(int tag) {
+// 		this.tag = this.key = tag;
+// 	}
 
-	void lock() {
-		rel.lock();
-	}
+// 	void lock() {
+// 		rel.lock();
+// 	}
 
-	void unlock() {
-		rel.unlock();
-	}
-}
+// 	void unlock() {
+// 		rel.unlock();
+// 	}
+// }

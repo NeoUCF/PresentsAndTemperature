@@ -17,15 +17,15 @@ import java.util.concurrent.atomic.AtomicInteger;
 // in the list, or if a present was in the list and is either
 // in it or have been written a "Thank You"
 public class Presents extends OptimisticList {
-	public static final int NUM_PRESENTS = 5;
+	public static final int NUM_PRESENTS = 50;
 	public static final int NUM_SERVANTS = 4;
 	public static AtomicInteger numNotes = new AtomicInteger();
 	public static ArrayBlockingQueue<Integer> bag;
 	public static ArrayBlockingQueue<Integer> chain = new ArrayBlockingQueue<>(NUM_PRESENTS, true);
 	public static Thread[] servantThreads = new Thread[NUM_SERVANTS];
 	public static CyclicBarrier barrier = new CyclicBarrier(NUM_SERVANTS);
-	public static OptimisticList linkedList = new OptimisticList();
-	// public static LazyList linkedList = new LazyList();
+	// public static OptimisticList linkedList = new OptimisticList();
+	public static LazyList linkedList = new LazyList();
 
 	public static void main(String[] args) {
 
@@ -76,7 +76,7 @@ public class Presents extends OptimisticList {
 
 	public static void presentChain() {
 		System.out.println("Waiting");
-		System.out.println(bag.toString());
+		// System.out.println(bag.toString());
 
 		// Begin Chaining Presents (start threads)
 		for (int i = 0; i < NUM_SERVANTS; i++) {
@@ -95,7 +95,7 @@ class Servant extends Presents implements Runnable {
 	public void run() {
 		barrierWait(); // Waits for all threads before continuing
 
-		while (numNotes.get() <= NUM_PRESENTS) {
+		while (numNotes.get() < NUM_PRESENTS) {
 			Integer giftBag = bag.peek();
 			Integer giftChain = chain.peek();
 			int action = ThreadLocalRandom.current().nextInt(0, 3); // values from 0-2
@@ -125,8 +125,8 @@ class Servant extends Presents implements Runnable {
 					if (linkedList.remove(giftChain))
 						if (chain.poll() != null)
 						{
-							System.out.println("h");
-							numNotes.getAndIncrement();
+							// numNotes.getAndIncrement();
+							System.out.println("h" + numNotes.getAndIncrement());
 						}
 					break;
 				case 2:
@@ -135,6 +135,7 @@ class Servant extends Presents implements Runnable {
 					break;
 
 			}
+			// System.out.println("p");
 		}
 	}
 }

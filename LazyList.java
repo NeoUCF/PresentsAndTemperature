@@ -1,125 +1,134 @@
-// import java.util.concurrent.locks.ReentrantLock;
+import java.util.concurrent.locks.ReentrantLock;
 
-// // OptimisticList implementation directly from textbook
-// // [The Art of Multiprocessor Programming, 209-210]
-// public class LazyList {
-// 	Node head;
+// OptimisticList implementation directly from textbook
+// [The Art of Multiprocessor Programming, 209-210]
+public class LazyList {
+	Node head;
 
-// 	LazyList() {
-// 		head = new Node(-1);
-// 	}
+	LazyList() {
+		head = new Node();
+	}
 
-// 	private boolean validate(Node pred, Node curr) {
-// 		return !pred.marked && !curr.marked && pred.next == curr;
-// 	}
+	private boolean validate(Node pred, Node curr) {
+		return !pred.marked && !curr.marked && pred.next == curr;
+	}
 
-// 	public boolean add(Integer item) {
-// 		int key = item.hashCode();
+	public boolean add(Integer item) {
+		if (item == null)
+			return false;
 
-// 		while (true) {
-// 			Node pred = head;
-// 			Node curr = head.next;
+		int key = item.hashCode();
 
-// 			while (curr.key < key) {
-// 				pred = curr;
-// 				curr = curr.next;
-// 			}
+		while (true) {
+			Node pred = head;
+			Node curr = head.next;
 
-// 			pred.lock();
+			while (curr.next != null && curr.key < key) {
+				pred = curr;
+				curr = curr.next;
+			}
 
-// 			try {
-// 				curr.lock();
+			pred.lock();
 
-// 				try {
-// 					if (validate(pred, curr)) {
-// 						if (curr.key == key) {
-// 							return false;
-// 						} else {
-// 							Node node = new Node(item);
-// 							node.next = curr;
-// 							pred.next = node;
+			try {
+				curr.lock();
 
-// 							return true;
-// 						}
-// 					}
-// 				} finally {
-// 					curr.unlock();
-// 				}
-// 			} finally {
-// 				pred.unlock();
-// 			}
-// 		}
-// 	}
+				try {
+					if (validate(pred, curr)) {
+						if (curr.key == key) {
+							return false;
+						} else {
+							Node node = new Node(item);
+							node.next = curr;
+							pred.next = node;
 
-// 	public boolean remove(Integer item) {
-// 		int key = item.hashCode();
+							return true;
+						}
+					}
+				} finally {
+					curr.unlock();
+				}
+			} finally {
+				pred.unlock();
+			}
+		}
+	}
 
-// 		while (true) {
-// 			Node pred = head;
-// 			Node curr = head.next;
+	public boolean remove(Integer item) {
+		if (item == null)
+			return false;
 
-// 			while (curr.key < key) {
-// 				pred = curr;
-// 				curr = curr.next;
-// 			}
+		int key = item.hashCode();
 
-// 			pred.lock();
-// 			try {
-// 				curr.lock();
+		while (true) {
+			Node pred = head;
+			Node curr = head.next;
 
-// 				try {
-// 					if (validate(pred, curr)) {
-// 						if (curr.key != key) {
-// 							return false;
-// 						} else {
-// 							curr.marked = true;
-// 							pred.next = curr.next;
+			while (curr.next != null && curr.key < key) {
+				pred = curr;
+				curr = curr.next;
+			}
 
-// 							return true;
-// 						}
-// 					}
-// 				} finally {
-// 					curr.unlock();
-// 				}
-// 			} finally {
-// 				pred.unlock();
-// 			}
-// 		}
-// 	}
+			pred.lock();
+			try {
+				curr.lock();
 
-// 	public boolean contains(Integer item) {
-// 		int key = item.hashCode();
-// 		Node curr = head;
+				try {
+					if (validate(pred, curr)) {
+						if (curr.key != key) {
+							return false;
+						} else {
+							curr.marked = true;
+							pred.next = curr.next;
 
-// 		while (curr.key < key)
-// 			curr = curr.next;
+							return true;
+						}
+					}
+				} finally {
+					curr.unlock();
+				}
+			} finally {
+				pred.unlock();
+			}
+		}
+	}
 
-// 		return curr.key == key && !curr.marked;
-// 	}
-// }
+	public boolean contains(Integer item) {
+		if (item == null)
+			return false;
 
-// class Node {
-// 	int tag;
-// 	int key;
-// 	Node next;
-// 	boolean marked;
-// 	ReentrantLock rel = new ReentrantLock(true); // true makes it fair
+		int key = item.hashCode();
+		Node curr = head;
 
-// 	Node() {
-// 		this.tag = this.key = -2;
-// 		this.next = new Node(-1);
-// 		System.out.println("yoo");
-// 	}
+		while (curr.next != null && curr.key < key)
+			curr = curr.next;
 
-// 	Node(int tag) {
-// 		this.tag = this.key = tag;
-// 	}
+		return curr.key == key && !curr.marked;
+	}
+}
 
-// 	void lock() {
-// 		rel.lock();
-// 	}
+class Node {
+	int tag;
+	int key;
+	Node next;
+	boolean marked;
+	ReentrantLock rel = new ReentrantLock(true); // true makes it fair
 
-// 	void unlock() {
-// 		rel.unlock();
-// 	}
-// }
+	Node() {
+		this.tag = this.key = -2;
+		this.next = new Node(-1);
+		System.out.println("yoo");
+	}
+
+	Node(int tag) {
+		this.tag = this.key = tag;
+	}
+
+	void lock() {
+		rel.lock();
+	}
+
+	void unlock() {
+		rel.unlock();
+	}
+}
