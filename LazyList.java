@@ -117,7 +117,6 @@ class Node {
 	Node() {
 		this.tag = this.key = -2;
 		this.next = new Node(-1);
-		System.out.println("yoo");
 	}
 
 	Node(int tag) {

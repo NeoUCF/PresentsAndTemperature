@@ -17,7 +17,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 // in the list, or if a present was in the list and is either
 // in it or have been written a "Thank You"
 public class Presents extends OptimisticList {
-	public static final int NUM_PRESENTS = 50;
+	public static final int NUM_PRESENTS = 50000;
 	public static final int NUM_SERVANTS = 4;
 	public static AtomicInteger numNotes = new AtomicInteger();
 	public static ArrayBlockingQueue<Integer> bag;
@@ -95,7 +95,7 @@ class Servant extends Presents implements Runnable {
 	public void run() {
 		barrierWait(); // Waits for all threads before continuing
 
-		while (numNotes.get() < NUM_PRESENTS) {
+		while (numNotes.get() != NUM_PRESENTS) {
 			Integer giftBag = bag.peek();
 			Integer giftChain = chain.peek();
 			int action = ThreadLocalRandom.current().nextInt(0, 3); // values from 0-2
@@ -115,18 +115,17 @@ class Servant extends Presents implements Runnable {
 				case 0:
 					if (linkedList.add(giftBag))
 					{
-						System.out.println("a");
+						// System.out.println("a" + Thread.currentThread().getName());
 
 						chain.add(giftBag);
-						bag.poll();
 					}
 					break;
 				case 1:
 					if (linkedList.remove(giftChain))
 						if (chain.poll() != null)
 						{
-							// numNotes.getAndIncrement();
-							System.out.println("h" + numNotes.getAndIncrement());
+							numNotes.getAndIncrement();
+							// System.out.println("h" + numNotes.getAndIncrement());
 						}
 					break;
 				case 2:
