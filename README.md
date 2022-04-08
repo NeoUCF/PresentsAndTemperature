@@ -3,6 +3,8 @@
 On the command prompt, go to the directory which contains the .java files, then run:
 - 
 
+In the servants' initial approach where they had more presents than "Thank you" notes, they likely used the Lock-Free List approach but did not take into account that a logically removed present can still add a present to it as a successor. Hence there are presents that are not a part of the chain but never got written a Thank you note. Assume we have gifts ordered with tags of 1, 2, 3, 5. If a servant removes 3 and another servant adds 4 at the same time. It's possible that 1 -> 2 -> 5, but 4 -> 5. So, 4 never gets accounted for 
+
 ## Problem 1: The Birthday Presents Party (50 points)
 
 The Minotaur’s birthday party was a success. The Minotaur received a lot of presents from his guests. The next day he decided to sort all of his presents and start writing “Thank you” cards. Every present had a tag with a unique number that was associated with the guest who gave it. Initially all of the presents were thrown into a large bag with no particular order. The Minotaur wanted to take the presents from this unordered bag and create a chain of presents hooked to each other with special links (similar to storing elements in a linked-list). In this chain (linked-list) all of the presents had to be ordered according to their tag numbers in increasing order. The Minotaur asked 4 of his servants to help him with creating the chain of presents and writing the cards to his guests. Each servant would do one of three actions in no particular order:
