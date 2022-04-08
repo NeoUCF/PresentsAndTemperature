@@ -96,11 +96,11 @@ class Servant extends Presents implements Runnable {
 		barrierWait(); // Waits for all threads before continuing
 
 		while (numNotes.get() != NUM_PRESENTS) {
-			Integer giftBag = bag.peek();
-			Integer giftChain = chain.peek();
 			int action = ThreadLocalRandom.current().nextInt(0, 3); // values from 0-2
 			int randCheck = ThreadLocalRandom.current().nextInt(0, NUM_PRESENTS);
 
+			// System.out.println("Start: " + giftBag);
+			
 			// try {
 			// System.out.println(bag.poll());
 			// Thread.sleep(1000);
@@ -113,18 +113,26 @@ class Servant extends Presents implements Runnable {
 
 			switch (action) {
 				case 0:
+					Integer giftBag = bag.poll();
+
 					if (linkedList.add(giftBag))
 					{
 						// System.out.println("a" + Thread.currentThread().getName());
+
+						// System.out.println("Adding: " + giftBag);
 
 						chain.add(giftBag);
 					}
 					break;
 				case 1:
+					Integer giftChain = chain.peek();
+
 					if (linkedList.remove(giftChain))
 						if (chain.poll() != null)
 						{
 							numNotes.getAndIncrement();
+							// System.out.println("Removed: " + giftChain);
+
 							// System.out.println("h" + numNotes.getAndIncrement());
 						}
 					break;
