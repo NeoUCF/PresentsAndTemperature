@@ -116,7 +116,7 @@ public class OptimisticList {
 	private boolean validate(Node pred, Node curr) {
 		Node node = this.head;
 
-		while (node.key <= pred.key) {
+		while (node != null && node.key <= pred.key) {
 			if (node == pred) {
 				return pred.next == curr;
 			}

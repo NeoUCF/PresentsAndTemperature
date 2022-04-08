@@ -25,6 +25,7 @@ public class Presents extends OptimisticList {
 	public static Thread[] servantThreads = new Thread[NUM_SERVANTS];
 	public static CyclicBarrier barrier = new CyclicBarrier(NUM_SERVANTS);
 	public static OptimisticList linkedList = new OptimisticList();
+	// public static LazyList linkedList = new LazyList();
 
 	public static void main(String[] args) {
 
@@ -94,9 +95,9 @@ class Servant extends Presents implements Runnable {
 	public void run() {
 		barrierWait(); // Waits for all threads before continuing
 
-		while (numNotes.get() != NUM_PRESENTS) {
-			Integer giftBag = bag.poll();
-			Integer giftChain = chain.poll();
+		while (numNotes.get() <= NUM_PRESENTS) {
+			Integer giftBag = bag.peek();
+			Integer giftChain = chain.peek();
 			int action = ThreadLocalRandom.current().nextInt(0, 3); // values from 0-2
 			int randCheck = ThreadLocalRandom.current().nextInt(0, NUM_PRESENTS);
 
@@ -117,6 +118,7 @@ class Servant extends Presents implements Runnable {
 						System.out.println("a");
 
 						chain.add(giftBag);
+						bag.poll();
 					}
 					break;
 				case 1:
