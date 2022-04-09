@@ -1,6 +1,6 @@
 import java.util.concurrent.locks.ReentrantLock;
 
-// OptimisticList implementation directly from textbook
+// LazyList implementation directly from textbook
 // [The Art of Multiprocessor Programming, 209-210]
 public class LazyList {
 	LLNode head;

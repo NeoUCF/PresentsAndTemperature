@@ -1,10 +1,15 @@
 import java.util.concurrent.atomic.AtomicMarkableReference;
 
+// LockFreeList implementation directly from textbook
+// [The Art of Multiprocessor Programming, 216-218]
 public class LockFreeList {
 	LFNode head;
 
 	LockFreeList() {
-		head = new LFNode();
+		this.head = new LFNode(Integer.MIN_VALUE);
+		LFNode tail = new LFNode(Integer.MAX_VALUE);
+		while (!head.next.compareAndSet(null, tail, false, false))
+			;
 	}
 
 	public Window find(LFNode head, int key) {
@@ -26,7 +31,7 @@ public class LockFreeList {
 					if (!snip)
 						continue retry;
 
-					curr = succ;
+					curr = pred.next.getReference();
 					succ = curr.next.get(marked);
 				}
 
@@ -50,7 +55,7 @@ public class LockFreeList {
 			LFNode pred = window.pred;
 			LFNode curr = window.curr;
 
-			if (curr.next != null && curr.key == key) {
+			if (curr.key == key) {
 				return false;
 			} else {
 				LFNode node = new LFNode(item);
@@ -75,11 +80,11 @@ public class LockFreeList {
 			LFNode pred = window.pred;
 			LFNode curr = window.curr;
 
-			if (curr.next != null && curr.key != key) {
+			if (curr.key != key) {
 				return false;
 			} else {
 				LFNode succ = curr.next.getReference();
-				snip = curr.next.compareAndSet(succ, succ, false, true);
+				snip = curr.next.compareAndSet(succ, succ, false, true); //
 
 				if (!snip)
 					continue;
@@ -91,19 +96,23 @@ public class LockFreeList {
 	}
 
 	public boolean contains(Integer item) {
-		if (item == null)
-			return false;
+		// if (item == null)
+		// return false;
 
-		boolean[] marked = { false };
+		// boolean[] marked = { false };
+		// int key = item.hashCode();
+		// LFNode curr = head;
+
+		// while (curr.next != null && curr.key < key) {
+		// curr = curr.next.getReference();
+		// LFNode succ = curr.next.get(marked);
+		// }
+
+		// return (curr.key == key && !marked[0]);
 		int key = item.hashCode();
-		LFNode curr = head;
-
-		while (curr.next != null && curr.key < key) {
-			curr = curr.next.getReference();
-			LFNode succ = curr.next.get(marked);
-		}
-
-		return (curr.key == key && !marked[0]);
+		Window window = find(head, key);
+		LFNode curr = window.curr;
+		return (curr.key == key);
 	}
 }
 
@@ -112,24 +121,25 @@ class Window {
 	public LFNode curr;
 
 	Window(LFNode myPred, LFNode myCurr) {
-		pred = myPred;
-		curr = myCurr;
+		this.pred = myPred;
+		this.curr = myCurr;
 	}
 }
 
 class LFNode {
-	int tag;
+	Integer tag;
 	int key;
 	AtomicMarkableReference<LFNode> next;
-	boolean marked;
 
-	LFNode() {
-		this.tag = this.key = -2;
-		LFNode tempNext = new LFNode(-1);
-		this.next = new AtomicMarkableReference<LFNode>(tempNext, false);
+	LFNode(Integer item) {
+		this.tag = item;
+		this.key = item.hashCode();
+		this.next = new AtomicMarkableReference<LFNode>(null, false);
 	}
 
-	LFNode(int tag) {
-		this.tag = this.key = tag;
+	LFNode(int key) {
+		this.tag = null;
+		this.key = key;
+		this.next = new AtomicMarkableReference<LFNode>(null, false);
 	}
 }

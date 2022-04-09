@@ -22,7 +22,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 // Expected/maximum runtime?
 public class Presents {
-	public static final int NUM_PRESENTS = 5;
+	public static final int NUM_PRESENTS = 50000;
 	public static final int NUM_SERVANTS = 4;
 	public static AtomicInteger numNotes = new AtomicInteger();
 	public static ArrayBlockingQueue<Integer> bag;
