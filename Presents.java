@@ -12,12 +12,17 @@ import java.util.concurrent.atomic.AtomicInteger;
 // S2:add(2) -> S2: remove(2) -> S2: add(5) -> ...
 // S3:add(3) -> S3: remove(3) -> S3: add(6) -> ...
 // S4:add(4) -> S4: remove(4) -> S4: add(7) -> ...
+// Or must their add/remove/contains be truly random
 
 // For action 3, are we checking if a present is currently
 // in the list, or if a present was in the list and is either
 // in it or have been written a "Thank You"
-public class Presents extends OptimisticList {
-	public static final int NUM_PRESENTS = 50000;
+
+// 
+
+// Expected/maximum runtime?
+public class Presents {
+	public static final int NUM_PRESENTS = 5;
 	public static final int NUM_SERVANTS = 4;
 	public static AtomicInteger numNotes = new AtomicInteger();
 	public static ArrayBlockingQueue<Integer> bag;
@@ -25,7 +30,8 @@ public class Presents extends OptimisticList {
 	public static Thread[] servantThreads = new Thread[NUM_SERVANTS];
 	public static CyclicBarrier barrier = new CyclicBarrier(NUM_SERVANTS);
 	// public static OptimisticList linkedList = new OptimisticList();
-	public static LazyList linkedList = new LazyList();
+	// public static LazyList linkedList = new LazyList();
+	public static LockFreeList linkedList = new LockFreeList();
 
 	public static void main(String[] args) {
 

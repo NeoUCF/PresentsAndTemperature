@@ -3,10 +3,10 @@ import java.util.concurrent.locks.ReentrantLock;
 // OptimisticList implementation directly from textbook
 // [The Art of Multiprocessor Programming, 206-207]
 public class OptimisticList {
-	Node head;
+	ONode head;
 
 	OptimisticList() {
-		head  = new Node();
+		head = new ONode();
 	}
 
 	public boolean add(Integer tag) {
@@ -15,14 +15,14 @@ public class OptimisticList {
 
 		// if (head.next == null)
 		// {
-		// 	head.next = new Node(tag); // !!!
+		// head.next = new ONode(tag); // !!!
 		// }
 
 		int key = tag;
 
 		while (true) {
-			Node pred = this.head;
-			Node curr = pred.next;
+			ONode pred = this.head;
+			ONode curr = pred.next;
 
 			while (curr.next != null && curr.key < key) {
 				pred = curr;
@@ -37,7 +37,7 @@ public class OptimisticList {
 					if (curr.key == key) {
 						return false;
 					} else {
-						Node node = new Node(tag);
+						ONode node = new ONode(tag);
 						node.next = curr;
 						pred.next = node;
 						return true;
@@ -57,8 +57,8 @@ public class OptimisticList {
 		int key = tag;
 
 		while (true) {
-			Node pred = this.head;
-			Node curr = pred.next;
+			ONode pred = this.head;
+			ONode curr = pred.next;
 
 			while (curr.next != null && curr.key < key) {
 				pred = curr;
@@ -91,8 +91,8 @@ public class OptimisticList {
 		int key = tag;
 
 		while (true) {
-			Node pred = this.head; // sentinel node
-			Node curr = pred.next;
+			ONode pred = this.head; // sentinel node
+			ONode curr = pred.next;
 
 			while (curr.next != null && curr.key < key) {
 				pred = curr;
@@ -113,8 +113,8 @@ public class OptimisticList {
 		}
 	}
 
-	private boolean validate(Node pred, Node curr) {
-		Node node = this.head;
+	private boolean validate(ONode pred, ONode curr) {
+		ONode node = this.head;
 
 		while (node != null && node.key <= pred.key) {
 			if (node == pred) {
@@ -128,27 +128,27 @@ public class OptimisticList {
 	}
 }
 
-// class Node {
-// 	int tag;
-// 	int key;
-// 	Node next;
-// 	ReentrantLock rel = new ReentrantLock(true); // true makes it fair
+class ONode {
+	int tag;
+	int key;
+	ONode next;
+	ReentrantLock rel = new ReentrantLock(true); // true makes it fair
 
-// 	Node() {
-// 		this.tag = this.key = -2;
-// 		this.next = new Node(-1);
-// 		System.out.println("yoo");
-// 	}
+	ONode() {
+		this.tag = this.key = -2;
+		this.next = new ONode(-1);
+		System.out.println("yoo");
+	}
 
-// 	Node(int tag) {
-// 		this.tag = this.key = tag;
-// 	}
+	ONode(int tag) {
+		this.tag = this.key = tag;
+	}
 
-// 	void lock() {
-// 		rel.lock();
-// 	}
+	void lock() {
+		rel.lock();
+	}
 
-// 	void unlock() {
-// 		rel.unlock();
-// 	}
-// }
+	void unlock() {
+		rel.unlock();
+	}
+}

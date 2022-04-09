@@ -3,13 +3,13 @@ import java.util.concurrent.locks.ReentrantLock;
 // OptimisticList implementation directly from textbook
 // [The Art of Multiprocessor Programming, 209-210]
 public class LazyList {
-	Node head;
+	LLNode head;
 
 	LazyList() {
-		head = new Node();
+		head = new LLNode();
 	}
 
-	private boolean validate(Node pred, Node curr) {
+	private boolean validate(LLNode pred, LLNode curr) {
 		return !pred.marked && !curr.marked && pred.next == curr;
 	}
 
@@ -20,8 +20,8 @@ public class LazyList {
 		int key = item.hashCode();
 
 		while (true) {
-			Node pred = head;
-			Node curr = head.next;
+			LLNode pred = head;
+			LLNode curr = head.next;
 
 			while (curr.next != null && curr.key < key) {
 				pred = curr;
@@ -38,7 +38,7 @@ public class LazyList {
 						if (curr.key == key) {
 							return false;
 						} else {
-							Node node = new Node(item);
+							LLNode node = new LLNode(item);
 							node.next = curr;
 							pred.next = node;
 
@@ -61,8 +61,8 @@ public class LazyList {
 		int key = item.hashCode();
 
 		while (true) {
-			Node pred = head;
-			Node curr = head.next;
+			LLNode pred = head;
+			LLNode curr = head.next;
 
 			while (curr.next != null && curr.key < key) {
 				pred = curr;
@@ -98,7 +98,7 @@ public class LazyList {
 			return false;
 
 		int key = item.hashCode();
-		Node curr = head;
+		LLNode curr = head;
 
 		while (curr.next != null && curr.key < key)
 			curr = curr.next;
@@ -107,19 +107,19 @@ public class LazyList {
 	}
 }
 
-class Node {
+class LLNode {
 	int tag;
 	int key;
-	Node next;
+	LLNode next;
 	boolean marked;
 	ReentrantLock rel = new ReentrantLock(true); // true makes it fair
 
-	Node() {
+	LLNode() {
 		this.tag = this.key = -2;
-		this.next = new Node(-1);
+		this.next = new LLNode(-1);
 	}
 
-	Node(int tag) {
+	LLNode(int tag) {
 		this.tag = this.key = tag;
 	}
 
