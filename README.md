@@ -9,7 +9,21 @@ For Problem 2 (Temperature), run:
 - `javac Temperature.java`
 - `java Temperature`
 
+## Problem 1:
+### Reasons the Servants' Initial Approach was Wrong
 In the servants' initial approach where they had more presents than "Thank you" notes, they likely used the Optimistic Locking approach but they do not validate. If that occurs, there can be hanging nodes/presents where it can't be accessed from the head of the chain. For example, assume we have gifts with tags of 1, 2, 4, 5. If a servant tries to add 3 and another servant remove 2 without validating, it's possible that `HEAD -> 1 -> 4 -> 5` is the list, but `2 -> 3 -> 4 -> 5` exists where 2 and 3 are dangling from the list. So, 2 and 3 never gets accounted for when going through the chain. It's likely they also could have also used the Lock-Free List approach but they did not take into account that a logically removed present can still add a present to it as a successor (i.e. no markable bit). Hence there are presents that are not a part of the chain but never got written a Thank you note. Assume we have gifts ordered with tags of 1, 2, 3, 5. If a servant removes 3 and another servant adds 4 at the same time. It's possible that `HEAD -> 1 -> 2 -> 5` is the list, but `4 -> 5` also exists. So, 4 never gets accounted for when going through the chain.
+
+### Correctness, Efficiency, and Evaluation:
+To account for an unsorted bag, I used a collections class to shuffle it to get a random assortment. Then, I placed that assortment into an ArrayBlockingQueue since it handles concurrent enqueues and dequeues well.
+
+The way I handle the servants actions is by doing an alternation between adding a present and removing a present with a random chance of checking if the chain contains a present. After successfully removing a present from the chain, a counter is incremented to keep track the number of Thank You Notes. The servants continues these operations until the bag has no items to dequeue.
+
+I used the OptimisticList approach. Its Correctness is ensured by the validate method which allows it to check the existence of a node/present. validate can take up to the entire length of the list to check. This approach is not starvation free, but the intermitten call for checking if a present is in the list lowers this chance for a thread to be delayed. The Correctness is also ensured by the use of two locks. By having the two locks, it ensures there will not be a dangling node/present on the chain where the head of the chain can't access it. Although the locks can slow down the program a bit, it guarantees freedom from interference.
+
+In terms of Efficiency, this OptimisticList works well with many threads doing concurrent adds, removes, and contains. contains can be randomly called, but it will still perform add and remove after. Given that the real-time ordering is unpredictable the order of which one of these methods can be considered pseudo-random. However, since I made the add and remove methods called on every iteration, and the iterations continue until the bag (ArrayBlockingQueue) is empty, then the there should be n iterations (where n is the number of presents in the bag). So the runtime is O(n). The multi-threaded approach is slower than the single-thread thread approach because of the lock and contentions that occur.
+
+For Experimental evaluation, I tested between 3 different approaches for concurrent linked list: OptimisticList, LazyList, and LockFreeList. The implementations come from the textbook. After testing runtimes between the three approaches, I've found that OptimisticList generally had a faster runtime compared to the other two based on how I structured my program. Running the OptimisticList with 4 servants and 500000 presents on 100 runs would take an average of 2987 milliseconds per run. All the experimental tests take place on a Lenovo IdeaPad Flex 5 which has a series 4000 Ryzen 7 (8 core CPU).
+
 
 ## Problem 1: The Birthday Presents Party (50 points)
 

@@ -6,21 +6,6 @@ import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.AtomicInteger;
 
-// Questions:
-// Can the 4 servants do this with alternating:
-// S1:add(1) -> S1: remove(1) -> S1: add(4) -> ...
-// S2:add(2) -> S2: remove(2) -> S2: add(5) -> ...
-// S3:add(3) -> S3: remove(3) -> S3: add(6) -> ...
-// S4:add(4) -> S4: remove(4) -> S4: add(7) -> ...
-// Or must their add/remove/contains be truly random
-
-// For action 3, are we checking if a present is currently
-// in the list, or if a present was in the list and is either
-// in it or have been written a "Thank You"
-
-// 
-
-// Expected/maximum runtime?
 public class Presents {
 	public static final int NUM_PRESENTS = 500000;
 	public static final int NUM_SERVANTS = 4;
@@ -33,6 +18,7 @@ public class Presents {
 	// public static LockFreeList linkedList = new LockFreeList();
 
 	public static void main(String[] args) {
+		// timeAverage(100);
 
 		setUpBag();
 		setUpServants();
@@ -45,6 +31,24 @@ public class Presents {
 		System.out.println(executionTime + " milliseconds to finish all Thank You Notes");
 		System.out.println(numNotes.get() + " out of " + NUM_PRESENTS + " written.");
 	}
+
+	private static void timeAverage(int n)
+    {
+        long totalTime = 0;
+
+        for (int i = 0; i < n; i++)
+        {
+			setUpBag();
+			setUpServants();
+
+            final long startTime = System.currentTimeMillis();
+			presentChain();
+            final long endTime = System.currentTimeMillis();
+            totalTime += endTime - startTime;
+        }
+
+        System.out.println("Average Time: " + (totalTime / n) + "ms");
+    }
 
 	public static void setUpBag() {
 		ArrayList<Integer> tempBag = new ArrayList<Integer>(NUM_PRESENTS);

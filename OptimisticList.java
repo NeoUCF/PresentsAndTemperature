@@ -130,11 +130,6 @@ class ONode {
 	ONode next;
 	ReentrantLock rel = new ReentrantLock(true); // true makes it fair
 
-	ONode() {
-		this.tag = this.key = -2;
-		this.next = new ONode(-1);
-	}
-
 	ONode(Integer item) {
 		this.tag = item;
 		this.key = item.hashCode();
