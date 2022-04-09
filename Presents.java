@@ -22,16 +22,15 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 // Expected/maximum runtime?
 public class Presents {
-	public static final int NUM_PRESENTS = 50000;
+	public static final int NUM_PRESENTS = 500000;
 	public static final int NUM_SERVANTS = 4;
 	public static AtomicInteger numNotes = new AtomicInteger();
 	public static ArrayBlockingQueue<Integer> bag;
-	public static ArrayBlockingQueue<Integer> chain = new ArrayBlockingQueue<>(NUM_PRESENTS, true);
 	public static Thread[] servantThreads = new Thread[NUM_SERVANTS];
 	public static CyclicBarrier barrier = new CyclicBarrier(NUM_SERVANTS);
-	// public static OptimisticList linkedList = new OptimisticList();
+	public static OptimisticList linkedList = new OptimisticList();
 	// public static LazyList linkedList = new LazyList();
-	public static LockFreeList linkedList = new LockFreeList();
+	// public static LockFreeList linkedList = new LockFreeList();
 
 	public static void main(String[] args) {
 
@@ -44,6 +43,7 @@ public class Presents {
 
 		long executionTime = endTime - startTime;
 		System.out.println(executionTime + " milliseconds to finish all Thank You Notes");
+		System.out.println(numNotes.get() + " out of " + NUM_PRESENTS + " written.");
 	}
 
 	public static void setUpBag() {
@@ -52,21 +52,16 @@ public class Presents {
 		for (int i = 0; i < NUM_PRESENTS; i++)
 			tempBag.add(i);
 
-		Collections.shuffle(tempBag);
+		Collections.shuffle(tempBag); // Make bag unordered
 
 		bag = new ArrayBlockingQueue<Integer>(NUM_PRESENTS, true, tempBag);
 	}
 
 	public static void setUpServants() {
-		if (NUM_SERVANTS < 1)
-			return;
+		Servant tempHold;
 
-		Servant tempHold = new Servant();
-
-		// Add other guests
 		for (int i = 0; i < NUM_SERVANTS; i++) {
 			tempHold = new Servant();
-			// servants.add(tempHold);
 
 			servantThreads[i] = new Thread(tempHold);
 		}
@@ -81,16 +76,16 @@ public class Presents {
 	}
 
 	public static void presentChain() {
-		System.out.println("Waiting");
-		// System.out.println(bag.toString());
+		System.out.println("Start Chaining/Thank You Process");
 
 		// Begin Chaining Presents (start threads)
-		for (int i = 0; i < NUM_SERVANTS; i++) {
+		for (int i = 0; i < NUM_SERVANTS; i++)
 			servantThreads[i].start();
-		}
 
 		try {
-			servantThreads[0].join(); // Wait for Threads to finish
+			// Wait for Threads to finish
+			for (int i = 0; i < NUM_SERVANTS; i++)
+				servantThreads[i].join();
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
@@ -101,54 +96,21 @@ class Servant extends Presents implements Runnable {
 	public void run() {
 		barrierWait(); // Waits for all threads before continuing
 
-		while (numNotes.get() != NUM_PRESENTS) {
-			int action = ThreadLocalRandom.current().nextInt(0, 3); // values from 0-2
+		while (bag.peek() != null) {
+			int action = ThreadLocalRandom.current().nextInt(0, 2); // values from 0-1
 			int randCheck = ThreadLocalRandom.current().nextInt(0, NUM_PRESENTS);
-
-			// System.out.println("Start: " + giftBag);
-			
-			// try {
-			// System.out.println(bag.poll());
-			// Thread.sleep(1000);
-			// barrierWait();
-			// } catch (InterruptedException e) {
-			// e.printStackTrace();
-			// }
-
-			// chain.add(bag.poll());
 
 			switch (action) {
 				case 0:
-					Integer giftBag = bag.poll();
-
-					if (linkedList.add(giftBag))
-					{
-						// System.out.println("a" + Thread.currentThread().getName());
-
-						// System.out.println("Adding: " + giftBag);
-
-						chain.add(giftBag);
-					}
-					break;
-				case 1:
-					Integer giftChain = chain.peek();
-
-					if (linkedList.remove(giftChain))
-						if (chain.poll() != null)
-						{
-							numNotes.getAndIncrement();
-							// System.out.println("Removed: " + giftChain);
-
-							// System.out.println("h" + numNotes.getAndIncrement());
-						}
-					break;
-				case 2:
+					linkedList.contains(randCheck); // Check if Present is in chain
 				default:
-					linkedList.contains(randCheck);
+					// The alternating approach below was confirmed by Dylan to be fine.
+					Integer giftBag = bag.poll();
+					linkedList.add(giftBag); // Add present to chain
+					if (linkedList.remove(giftBag)) // Remove present and write Thank You Note
+						numNotes.getAndIncrement();
 					break;
-
 			}
-			// System.out.println("p");
 		}
 	}
 }

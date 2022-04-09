@@ -1,9 +1,15 @@
 # PresentsAndTemperature
 ## How to Run the Program:
-On the command prompt, go to the directory which contains the .java files, then run:
-- 
+On the command prompt, go to the directory which contains the .java files.
+For Problem 1 (Presents), run:
+- `javac Presents.java`
+- `java Presents`
 
-In the servants' initial approach where they had more presents than "Thank you" notes, they likely used the Lock-Free List approach but did not take into account that a logically removed present can still add a present to it as a successor. Hence there are presents that are not a part of the chain but never got written a Thank you note. Assume we have gifts ordered with tags of 1, 2, 3, 5. If a servant removes 3 and another servant adds 4 at the same time. It's possible that 1 -> 2 -> 5, but 4 -> 5. So, 4 never gets accounted for 
+For Problem 2 (Temperature), run:
+- `javac Temperature.java`
+- `java Temperature`
+
+In the servants' initial approach where they had more presents than "Thank you" notes, they likely used the Optimistic Locking approach but they do not validate. If that occurs, there can be hanging nodes/presents where it can't be accessed from the head of the chain. For example, assume we have gifts with tags of 1, 2, 4, 5. If a servant tries to add 3 and another servant remove 2 without validating, it's possible that `HEAD -> 1 -> 4 -> 5` is the list, but `2 -> 3 -> 4 -> 5` exists where 2 and 3 are dangling from the list. So, 2 and 3 never gets accounted for when going through the chain. It's likely they also could have also used the Lock-Free List approach but they did not take into account that a logically removed present can still add a present to it as a successor (i.e. no markable bit). Hence there are presents that are not a part of the chain but never got written a Thank you note. Assume we have gifts ordered with tags of 1, 2, 3, 5. If a servant removes 3 and another servant adds 4 at the same time. It's possible that `HEAD -> 1 -> 2 -> 5` is the list, but `4 -> 5` also exists. So, 4 never gets accounted for when going through the chain.
 
 ## Problem 1: The Birthday Presents Party (50 points)
 

@@ -3,28 +3,24 @@ import java.util.concurrent.locks.ReentrantLock;
 // OptimisticList implementation directly from textbook
 // [The Art of Multiprocessor Programming, 206-207]
 public class OptimisticList {
-	ONode head;
+	private final ONode head;
 
 	OptimisticList() {
-		head = new ONode();
+		head = new ONode(Integer.MIN_VALUE);
+		head.next = new ONode(Integer.MAX_VALUE);
 	}
 
 	public boolean add(Integer tag) {
 		if (tag == null)
 			return false;
 
-		// if (head.next == null)
-		// {
-		// head.next = new ONode(tag); // !!!
-		// }
-
-		int key = tag;
+		int key = tag.hashCode();
 
 		while (true) {
 			ONode pred = this.head;
 			ONode curr = pred.next;
 
-			while (curr.next != null && curr.key < key) {
+			while (curr.key < key) {
 				pred = curr;
 				curr = curr.next;
 			}
@@ -54,13 +50,13 @@ public class OptimisticList {
 		if (tag == null)
 			return false;
 
-		int key = tag;
+		int key = tag.hashCode();
 
 		while (true) {
 			ONode pred = this.head;
 			ONode curr = pred.next;
 
-			while (curr.next != null && curr.key < key) {
+			while (curr.key < key) {
 				pred = curr;
 				curr = curr.next;
 			}
@@ -88,13 +84,13 @@ public class OptimisticList {
 		if (tag == null)
 			return false;
 
-		int key = tag;
+		int key = tag.hashCode();
 
 		while (true) {
 			ONode pred = this.head; // sentinel node
 			ONode curr = pred.next;
 
-			while (curr.next != null && curr.key < key) {
+			while (curr.key < key) {
 				pred = curr;
 				curr = curr.next;
 			}
@@ -116,7 +112,7 @@ public class OptimisticList {
 	private boolean validate(ONode pred, ONode curr) {
 		ONode node = this.head;
 
-		while (node != null && node.key <= pred.key) {
+		while (node.key <= pred.key) {
 			if (node == pred) {
 				return pred.next == curr;
 			}
@@ -137,11 +133,11 @@ class ONode {
 	ONode() {
 		this.tag = this.key = -2;
 		this.next = new ONode(-1);
-		System.out.println("yoo");
 	}
 
-	ONode(int tag) {
-		this.tag = this.key = tag;
+	ONode(Integer item) {
+		this.tag = item;
+		this.key = item.hashCode();
 	}
 
 	void lock() {
