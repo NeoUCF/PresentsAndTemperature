@@ -96,8 +96,8 @@ public class LockFreeList {
 	}
 
 	public boolean contains(Integer item) {
-		// if (item == null)
-		// return false;
+		if (item == null)
+			return false;
 
 		// boolean[] marked = { false };
 		// int key = item.hashCode();

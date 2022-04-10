@@ -13,9 +13,9 @@ public class Presents {
 	public static ArrayBlockingQueue<Integer> bag;
 	public static Thread[] servantThreads = new Thread[NUM_SERVANTS];
 	public static CyclicBarrier barrier = new CyclicBarrier(NUM_SERVANTS);
-	public static OptimisticList linkedList = new OptimisticList();
+	// public static OptimisticList linkedList = new OptimisticList();
 	// public static LazyList linkedList = new LazyList();
-	// public static LockFreeList linkedList = new LockFreeList();
+	public static LockFreeList linkedList = new LockFreeList();
 
 	public static void main(String[] args) {
 		// timeAverage(100);
@@ -58,7 +58,7 @@ public class Presents {
 
 		Collections.shuffle(tempBag); // Make bag unordered
 
-		bag = new ArrayBlockingQueue<Integer>(NUM_PRESENTS, true, tempBag);
+		bag = new ArrayBlockingQueue<Integer>(NUM_PRESENTS, false, tempBag);
 	}
 
 	public static void setUpServants() {
