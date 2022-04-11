@@ -8,7 +8,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class Presents {
 	public static final int NUM_PRESENTS = 500000;
-	public static final int NUM_SERVANTS = 4;
+	public static final int NUM_SERVANTS = 4; // Number of threads
 	public static AtomicInteger numNotes = new AtomicInteger();
 	public static ArrayBlockingQueue<Integer> bag;
 	public static Thread[] servantThreads = new Thread[NUM_SERVANTS];
@@ -32,23 +32,21 @@ public class Presents {
 		System.out.println(numNotes.get() + " out of " + NUM_PRESENTS + " written.");
 	}
 
-	private static void timeAverage(int n)
-    {
-        long totalTime = 0;
+	private static void timeAverage(int n) {
+		long totalTime = 0;
 
-        for (int i = 0; i < n; i++)
-        {
+		for (int i = 0; i < n; i++) {
 			setUpBag();
 			setUpServants();
 
-            final long startTime = System.currentTimeMillis();
+			final long startTime = System.currentTimeMillis();
 			presentChain();
-            final long endTime = System.currentTimeMillis();
-            totalTime += endTime - startTime;
-        }
+			final long endTime = System.currentTimeMillis();
+			totalTime += endTime - startTime;
+		}
 
-        System.out.println("Average Time: " + (totalTime / n) + "ms");
-    }
+		System.out.println("Average Time: " + (totalTime / n) + "ms");
+	}
 
 	public static void setUpBag() {
 		ArrayList<Integer> tempBag = new ArrayList<Integer>(NUM_PRESENTS);
