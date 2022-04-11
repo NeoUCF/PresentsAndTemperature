@@ -5,33 +5,19 @@ import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-// Question:
-// Do I have to worry too much about the whole
-// "shared memory space" since I'm working in Java?
-
-// This "shared memory space" is referring to a data structure? 
-
-// Do we have to do this in a LinkedList or is that the aim of this problem?
-
-// How many hours are being recorded? 3 or 4. can do 1
-// Simulate 1 minute as 10 milliseconds?
 public class Temperature {
 	public static final int NUM_SENSORS = 8; // Number of threads
-	public static final int NUM_HOURS = 1;
-	public static final int MIN_IN_MS = 100; // A minute will be simulated as this # of milliseconds
+	public static final int NUM_HOURS = 3;
+	public static final int MIN_IN_MS = 1000; // A minute will be simulated as this # of milliseconds
 	public static final int MIN_TEMP = -100;
 	public static final int MAX_TEMP = 70;
 	public LinkedBlockingDeque<Integer> tempReadings = new LinkedBlockingDeque<Integer>();
 	public static Thread[] sensorThreads = new Thread[NUM_SENSORS];
 	public static CyclicBarrier barrier = new CyclicBarrier(NUM_SENSORS);
-	public static LockFreeList linkedList;
-	public static LockFreeList diffList;
 	public static int[] minuteReport = new int[NUM_SENSORS];
-	public static int[] maxMinutesList;
-	public static int[] minMinutesList;
 
 	public static void main(String[] args) {
-		timeAverage(1000);
+		timeAverage(100);
 
 		setUpSensors();
 
@@ -73,7 +59,8 @@ public class Temperature {
 		try {
 			barrier.await(MIN_IN_MS, TimeUnit.MILLISECONDS);
 		} catch (InterruptedException | BrokenBarrierException | TimeoutException e) {
-			e.printStackTrace();
+			// e.printStackTrace();
+			System.err.println("A sensor was too slow at an iteration");
 		}
 	}
 
@@ -97,8 +84,6 @@ public class Temperature {
 
 class Sensor extends Temperature implements Runnable {
 	public int threadNum;
-	public int maxAtMinute;
-	public int minAtMinute;
 
 	public Sensor(int th) {
 		threadNum = th;
@@ -114,43 +99,43 @@ class Sensor extends Temperature implements Runnable {
 
 	public void report(int hour) {
 		System.out.println("Report for hour " + hour + ":");
-		linkedList.firstAndLast5();
-		diffList.getMax();
+		SharedMemory.maxList.firstAndLast5();
+		SharedMemory.reportList.getMaxDiff();
 		System.out.println("==============================");
 	}
 
 	public void run() {
 		for (int hour = 1; hour <= NUM_HOURS; hour++) {
 			if (sensorThreads[0] == Thread.currentThread()) {
-				linkedList = new LockFreeList();
-				diffList = new LockFreeList();
-				maxMinutesList = new int[60];
-				minMinutesList = new int[60];
+				SharedMemory.maxList = new LockFreeList();
+				SharedMemory.reportList = new LockFreeReport();
 			}
 
 			for (int minutes = 0; minutes < 60; minutes++) {
 				int temp = ThreadLocalRandom.current().nextInt(MIN_TEMP, MAX_TEMP + 1);
 				minuteReport[threadNum] = temp;
+
+				int maxAtMinute = Integer.MIN_VALUE;
+				int minAtMinute = Integer.MAX_VALUE;
 				barrierWait();
 
 				for (int i = 0; i < NUM_SENSORS; i++) {
-					maxMinutesList[minutes] = Math.max(minuteReport[i], maxMinutesList[minutes]);
-					minMinutesList[minutes] = Math.min(minuteReport[i], minMinutesList[minutes]);
+					maxAtMinute = Math.max(minuteReport[i], maxAtMinute);
+					minAtMinute = Math.min(minuteReport[i], minAtMinute);
 				}
 
-				linkedList.add(temp);
-				if (minutes >= 10) {
-					int temp1 = maxMinutesList[minutes] - minMinutesList[minutes - 10];
-					int temp2 = maxMinutesList[minutes - 10] - minMinutesList[minutes];
-
-					diffList.add(Math.max(temp1, temp2), minutes + 1);
-				}
+				SharedMemory.maxList.add(temp);
+				SharedMemory.reportList.add(minutes + 1, minuteReport, maxAtMinute, minAtMinute);
 			}
 
 			if (sensorThreads[0] == Thread.currentThread()) {
 				report(hour);
 			}
 		}
-
 	}
+}
+
+class SharedMemory {
+	public static LockFreeList maxList;
+	public static LockFreeReport reportList;
 }

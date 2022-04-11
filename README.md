@@ -26,7 +26,7 @@ For Experimental evaluation, I tested between 3 different approaches for concurr
 
 ## Problem 2:
 ### Correctness, Efficiency, and Evaluation:
-Running 8 sensors in 1 hour of temperature recording on 100 runs would take an average of 6 milliseconds. All the experimental tests take place on a Lenovo IdeaPad Flex 5 which has a series 4000 Ryzen 7 (8 core CPU).
+Running 8 sensors in 1 hour of temperature recording on 100 runs would take an average of 23 milliseconds. All the experimental tests take place on a Lenovo IdeaPad Flex 5 which has a series 4000 Ryzen 7 (8 core CPU).
 
 ## Problem 1: The Birthday Presents Party (50 points)
 
