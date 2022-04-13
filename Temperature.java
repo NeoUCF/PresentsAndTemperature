@@ -17,7 +17,7 @@ public class Temperature {
 	public static int[] minuteReport = new int[NUM_SENSORS];
 
 	public static void main(String[] args) {
-		timeAverage(100);
+		// timeAverage(100);
 
 		setUpSensors();
 
@@ -99,7 +99,7 @@ class Sensor extends Temperature implements Runnable {
 
 	public void report(int hour) {
 		System.out.println("Report for hour " + hour + ":");
-		SharedMemory.maxList.firstAndLast5();
+		SharedMemory.tempList.firstAndLast5();
 		SharedMemory.reportList.getMaxDiff();
 		System.out.println("==============================");
 	}
@@ -107,7 +107,7 @@ class Sensor extends Temperature implements Runnable {
 	public void run() {
 		for (int hour = 1; hour <= NUM_HOURS; hour++) {
 			if (sensorThreads[0] == Thread.currentThread()) {
-				SharedMemory.maxList = new LockFreeList();
+				SharedMemory.tempList = new LockFreeList();
 				SharedMemory.reportList = new LockFreeReport();
 			}
 
@@ -124,7 +124,7 @@ class Sensor extends Temperature implements Runnable {
 					minAtMinute = Math.min(minuteReport[i], minAtMinute);
 				}
 
-				SharedMemory.maxList.add(temp);
+				SharedMemory.tempList.add(temp);
 				SharedMemory.reportList.add(minutes + 1, minuteReport, maxAtMinute, minAtMinute);
 			}
 
@@ -136,6 +136,6 @@ class Sensor extends Temperature implements Runnable {
 }
 
 class SharedMemory {
-	public static LockFreeList maxList;
+	public static LockFreeList tempList;
 	public static LockFreeReport reportList;
 }

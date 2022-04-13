@@ -208,6 +208,8 @@ public class LockFreeReport {
 		System.out.println();
 	}
 
+	// Sliding Window implementation comes from GeeksForGeeks
+	// https://www.geeksforgeeks.org/sliding-window-maximum-maximum-of-all-subarrays-of-size-k/
 	public int[] slidingWindowMax(int arr[], int n, int k) {
 		int j, max;
 		int[] slidingMax = new int[n - k + 1];
@@ -227,6 +229,8 @@ public class LockFreeReport {
 		return slidingMax;
 	}
 
+	// Sliding Window implementation comes from GeeksForGeeks
+	// https://www.geeksforgeeks.org/sliding-window-maximum-maximum-of-all-subarrays-of-size-k/
 	public int[] slidingWindowMin(int arr[], int n, int k) {
 		int j, max;
 		int[] slidingMin = new int[n - k + 1];
